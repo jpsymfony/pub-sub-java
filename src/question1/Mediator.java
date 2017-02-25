@@ -66,8 +66,11 @@ public class Mediator implements MediatorI, Serializable
         Topic topic = subscriber.getTopic();
         subscribers.put(subscriber, topic);
 
-        List<SubscriberI> list = map.get(topic); // obtention de la liste des souscripteurs a ce topic
-        if (null == list) { // ce theme est absent
+        // On récupère la liste des subscribers a ce topic
+        List<SubscriberI> list = map.get(topic);
+
+        // si ce theme est absent de la liste
+        if (null == list) {
             list = new ArrayList<>();
             map.put(topic, list);
         }
@@ -83,14 +86,17 @@ public class Mediator implements MediatorI, Serializable
      */
     public Mediator remove(SubscriberI subscriber) throws Exception
     {
-        System.out.println(subscribers + "  " + subscribers.get(subscriber));
         if (null == subscribers.get(subscriber)) {
             throw new Exception("abonne absent");
         }
 
-        List<SubscriberI> list = map.get(subscriber.getTopic()); // obtention de la liste des souscripteurs a ce topic
-        if (null != list && list.contains(subscriber)) {   // si la liste existe et le souscripteur est dans cette liste
-            list.remove(subscriber);                       // retrait effectif
+        // On récupère la liste des subscribers a ce topic
+        List<SubscriberI> list = map.get(subscriber.getTopic());
+        // si la liste existe et que le subscriver y est présent
+        if (null != list && list.contains(subscriber)) {
+            // on retire le subscriber de la liste
+            list.remove(subscriber);
+            // on retire le subscriber de la hashMap
             subscribers.remove(subscriber);
         }
         return this;
@@ -123,13 +129,14 @@ public class Mediator implements MediatorI, Serializable
      *
      * @param topic le theme de publication
      * @param arg   un parametre arguments
-     * @throws Exception si ce theme n'existe pas et il n'y a aucun souscripteur pour ce theme
+     * @throws Exception si ce theme n'existe pas et il n'y a aucun subscriber pour ce theme
      */
     public void sendBroadcast(Topic topic, Object arg) throws Exception
     {
-        List<SubscriberI> list = map.get(topic); // obtention de la liste des souscripteurs a ce topic
+        // On récupère la liste des subscribers a ce topic
+        List<SubscriberI> list = map.get(topic);
         if (null == list) {
-            throw new Exception("aucun souscripteur sur ce theme");
+            throw new Exception("aucun subscriber sur ce theme");
         }
 
         Iterator<SubscriberI> it = list.iterator();
@@ -155,9 +162,10 @@ public class Mediator implements MediatorI, Serializable
      */
     public void sendOrderedBroadcast(Topic topic, Object arg) throws Exception
     {
-        List<SubscriberI> list = map.get(topic); // obtention de la liste des souscripteurs a ce topic
+        // On récupère la liste des subscribers a ce topic
+        List<SubscriberI> list = map.get(topic);
         if (null == list) {
-            throw new Exception("aucun souscripteur sur ce theme");
+            throw new Exception("aucun subscriber sur ce theme");
         }
 
         List<SubscriberI> orderedList = new ArrayList<>(list);

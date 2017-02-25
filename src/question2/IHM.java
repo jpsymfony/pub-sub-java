@@ -89,7 +89,9 @@ public class IHM extends JFrame
         public String toString()
         {
             String abort = ",F";
-            if (isAborted()) abort = ",T";
+            if (isAborted()) {
+                abort = ",T";
+            }
             return name + "(" + getPriority() + abort + ")";
         }
 
@@ -192,7 +194,9 @@ public class IHM extends JFrame
             public void actionPerformed(ActionEvent ae)
             {
                 Topic topic = planif;
-                if (meteoCheck.isSelected()) topic = meteo;
+                if (meteoCheck.isSelected()) {
+                    topic = meteo;
+                }
                 console.setText(mediator.getSubscribers(topic).toString() + "\n");
             }
         });
@@ -202,17 +206,29 @@ public class IHM extends JFrame
             public void actionPerformed(ActionEvent ae)
             {
                 try {
-                    String subName = subscriber.getText();
-                    int priorityValue = Integer.parseInt(priority.getText());
+                    // on definit un topic par defaut et on le remplace si l'autre est selectionne
                     Topic topic = planif;
-                    if (meteoCheck.isSelected()) topic = meteo;
-                    // remplace l'ancien abonne au meme nom...
-                    SubTest st = new SubTest(subName, topic, priorityValue);
-                    if (abortedCheck.isSelected()) st.setAborted();
-                    if (mediator.getSubscribers(topic).contains(st)) {
-                        mediator.remove(st);
+                    if (meteoCheck.isSelected()) {
+                        topic = meteo;
                     }
-                    mediator.add(st);
+
+                    // on recupere les valeurs inscrites
+                    String subscriberName = subscriber.getText();
+                    // priority est ici recupere sous forme de string, on doit le caster en integer
+                    int priorityVal = Integer.parseInt(priority.getText());
+                    SubTest subTest = new SubTest(subscriberName, topic, priorityVal);
+                    // on recupere la valeur aborted
+                    if (abortedCheck.isSelected()) {
+                        subTest.setAborted();
+                    }
+
+                    // ce code permet de cliquer plusieurs fois sur add pour un meme topic sans avoir le message "deja abonne".
+                    // il permet de faire passer le test sur Jnews qui teste deux add d'affilee
+                    if (mediator.getSubscribers(topic).contains(subTest)) {
+                        mediator.remove(subTest);
+                    }
+                    mediator.add(subTest);
+
                     console.setText(mediator.getSubscribers(topic).toString());
                 } catch (Exception e) {
                     console.append(e.getMessage() + "\n");
@@ -226,21 +242,28 @@ public class IHM extends JFrame
             public void actionPerformed(ActionEvent ae)
             {
                 try {
+                    // on vide le texte de la fenêtre
                     console.setText("");
-                    String msg = notification.getText();
+
+                    // on definit un topic par defaut et on le remplace si l'autre est selectionne
                     Topic topic = planif;
-                    if (meteoCheck.isSelected()) topic = meteo;
+                    if (meteoCheck.isSelected()) {
+                        topic = meteo;
+                    }
+
+                    String notificationVal = notification.getText();
                     if (orderedCheck.isSelected()) {
                         console.append("sendOrderedBroadcast\n");
-                        mediator.sendOrderedBroadcast(topic, msg);
-                    } else
-                        mediator.sendBroadcast(topic, msg);
+                        mediator.sendOrderedBroadcast(topic, notificationVal);
+                    } else {
+                        console.append("sendBroadcast\n");
+                        mediator.sendBroadcast(topic, notificationVal);
+                    }
                 } catch (Exception e) {
                     console.append(e.getMessage() + "\n");
                 }
                 IHM.this.pack();
             }
-
         });
 
         this.pack();
@@ -271,5 +294,4 @@ public class IHM extends JFrame
     {
         return new Scanner(new File(fileName)).useDelimiter("\\A").next();
     }
-
 }
